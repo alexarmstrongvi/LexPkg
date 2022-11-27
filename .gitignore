@@ -1,0 +1,13 @@
+# project directories
+.env/
+
+# setuptools
+*.egg-info/
+
+# Config
+.vscode/
+
+# Cache
+__pycache__
+.pytest_cache
+.mypy_cache

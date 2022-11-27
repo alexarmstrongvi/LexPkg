@@ -1,0 +1,10 @@
+# Testing
+pytest
+# Code quality
+pylint # Linter
+isort  # Import order checker
+black  # Formatter
+mypy   # Type checker
+# Documentation
+sphinx
+pydoc
