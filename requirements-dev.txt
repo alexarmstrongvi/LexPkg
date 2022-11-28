@@ -8,3 +8,5 @@ mypy   # Type checker
 # Documentation
 sphinx
 pydoc
+# Other
+pre-commit

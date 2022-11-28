@@ -1,0 +1,32 @@
+# See https://pre-commit.com for documentation
+# See https://pre-commit.com/hooks.html for available hooks and their repos
+
+# Configure which hooks to run with "repository mappings". These identify a repo
+# by its revision or tag and then list out the hooks to run from that repository
+# using "hook mappings".
+# The code that these hooks run can be found in their repo in a top-level
+# pre_commit_hooks folder or in a .pre-commit-hooks.yaml file that points to the
+# executable to run.
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0 # latest tag as of Nov 27, 2022
+    hooks:
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+    -   id: mixed-line-ending
+    -   id: trailing-whitespace
+-   repo: https://github.com/psf/black
+    rev: 22.10.0 # latest tag as of Nov 27, 2022
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/isort
+    rev: 5.10.1 # latest tag as of Nov 27, 2022
+    hooks:
+    -   id: isort
+        args: ["--profile", "black"]
+# TODO: Failing with import-error for tests/ files
+# -   repo: https://github.com/PyCQA/pylint
+#     rev: v2.15.6
+#     hooks:
+#     -   id: pylint
+#         args: ['--ignore', '.env']

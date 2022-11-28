@@ -3,7 +3,7 @@ def test_init():
     # pylint: disable=import-outside-toplevel
 
     # Object import
-    from lexpkg.subpkg.module import MY_VARIABLE, my_function, MyClass
+    from lexpkg.subpkg.module import MY_VARIABLE, MyClass, my_function
 
     assert MY_VARIABLE
     assert my_function
