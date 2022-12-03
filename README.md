@@ -102,7 +102,7 @@ Commands copied from ["Packaging Python Projects"](https://packaging.python.org/
 ## Generating distribution archives
 ```bash
 pip install --upgrade build
-build
+python -m build
 ```
 ## Uploading distribution archives
 
@@ -111,7 +111,7 @@ build
 pip install --upgrade twine
 twine upload --repository testpypi dist/*
 Enter your username: __token__
-Enter your API token: <your api token>
+Enter your password: <your api token>
 ```
 **Installing package**
 ```bash
