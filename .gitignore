@@ -6,6 +6,7 @@ __pycache__
 
 # Distribution / packaging
 build/
+dist/
 *.egg-info/
 
 # Unit test / coverage reports
@@ -15,9 +16,10 @@ htmlcov/
 # Environments
 .venv/
 
-# Configurations
+# IDE configurations
 .vscode/
 
 # Cache
 .pytest_cache
 .mypy_cache
+.tox

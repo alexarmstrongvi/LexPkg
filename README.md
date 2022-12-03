@@ -34,7 +34,7 @@ An example packaged python project
 
 
 # Setup
-**Environment setup**
+**Initial environment setup**
 ```bash
 cd path/to/run # path/to/lexpkg also works
 path/to/python -m venv .venv
@@ -53,16 +53,16 @@ source .venv/bin/activate
 Manually run tests
 ```bash
 # PyTest
-pytest tests/
+pytest tests
 # DocTest
 python -m unittest -v tests/doctest_runner.py
 # Coverage checker
-coverage run -m pytest tests/
+coverage run -m pytest tests
 coverage report
 # Import order checker
 isort --check ./
 # Linter
-pylint --recursive y --ignore .venv,docs ./ | grep -o "Module.*"
+pylint --recursive y --ignore .venv,.tox,docs ./ | grep -o "Module.*"
 flake8 --extend-exclude .venv --format quiet-filename ./
 # Autoformatter
 black --check ./
@@ -96,8 +96,15 @@ open build/html/index.html
 ```
 This is currently not working.
 
-# Uploading the distribution archives
-Commands copied from ["Packaging Python Projects"](https://packaging.python.org/en/latest/tutorials/packaging-projects/#uploading-the-distribution-archives)
+# Distributing package
+Commands copied from ["Packaging Python Projects"](https://packaging.python.org/en/latest/tutorials/packaging-projects)
+
+## Generating distribution archives
+```bash
+pip install --upgrade build
+build
+```
+## Uploading distribution archives
 
 **Initial upload to TestPyPI**
 ```bash
