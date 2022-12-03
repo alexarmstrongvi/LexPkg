@@ -1,16 +1,23 @@
-# project directories
-.env/
+# Based on full example at
+# https://github.com/github/gitignore/blob/main/Python.gitignore
 
-# setuptools
+# Byte-compiled
+__pycache__
+
+# Distribution / packaging
+build/
 *.egg-info/
 
-# Config
+# Unit test / coverage reports
+htmlcov/
+.coverage
+
+# Environments
+.venv/
+
+# Configurations
 .vscode/
 
 # Cache
-__pycache__
 .pytest_cache
 .mypy_cache
-
-# Build
-build/

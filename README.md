@@ -11,7 +11,7 @@ An example packaged python project
     * Version control: `git`, `.gitignore`
     * `README.md` (`.txt`, `.rst`)
     * Testing: `tests/`, `pytest`, `doctest`, `unittest`
-    * Linting: `pylint` and `.pylintrc`; `flake8`
+    * Linting: `pylint`; `flake8`
     * Formatting: `isort`; `black`
     * Complexity Checker: `mccabe`
     * Type Checking: `mypy`
@@ -28,16 +28,18 @@ An example packaged python project
     * `MANIFEST.in`
     * `docs/`, `pydoc`, `sphinx`
     * README badges
-    * TestPyPI and PyPI
-
-# Command line tools
+    * TestPyPI and PyPI, `twine`
 
 
-## Setup
+
+
+# Setup
 **Environment setup**
 ```bash
-cd path/to/run
+cd path/to/run # path/to/lexpkg also works
 path/to/python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
 pip install -e path/to/lexpkg
 ```
 
@@ -46,6 +48,7 @@ pip install -e path/to/lexpkg
 source .venv/bin/activate
 ```
 
+# Command line tools
 ## Testing
 Manually run tests
 ```bash
@@ -53,14 +56,21 @@ Manually run tests
 pytest tests/
 # DocTest
 python -m unittest -v tests/doctest_runner.py
+# Coverage checker
+coverage run -m pytest tests/
+coverage report
 # Import order checker
-isort --check --skip .env ./
+isort --check ./
 # Linter
-pylint --recursive y --ignore .env,docs ./ | grep -o "Module.*"
+pylint --recursive y --ignore .venv,docs ./ | grep -o "Module.*"
+flake8 --extend-exclude .venv --format quiet-filename ./
 # Autoformatter
 black --check ./
 # Type checker
-mypy src/
+mypy --exclude docs ./
+MYPYPATH=src mypy tests/ # for running on tests/ only
+# Complexity checker
+find ./src -name "*py" | xargs -n1 -t python -m mccabe --min 1
 # Pre-commit hooks
 pre-commit run --all-files
 ```
@@ -68,10 +78,14 @@ To followup on a specific file
 ```bash
 pytest               path/to/file.py
 python -m doctest -v path/to/file.py
+coverage report -m   path/to/file.py
 isort --check --diff path/to/file.py
-pylint ./            path/to/file.py
+pylint               path/to/file.py
+flake8               path/to/file.py
 black --check --diff path/to/file.py
 mypy                 path/to/file.py
+python -m mccabe     path/to/file.py
+# pre-commit N/A
 ```
 ## Documentation
 To generate and view the documentation:
@@ -81,3 +95,24 @@ make html
 open build/html/index.html
 ```
 This is currently not working.
+
+# Uploading the distribution archives
+Commands copied from ["Packaging Python Projects"](https://packaging.python.org/en/latest/tutorials/packaging-projects/#uploading-the-distribution-archives)
+
+**Initial upload to TestPyPI**
+```bash
+pip install --upgrade twine
+twine upload --repository testpypi dist/*
+Enter your username: __token__
+Enter your API token: <your api token>
+```
+**Installing package**
+```bash
+pip install --index-url https://test.pypi.org/simple/ --no-deps lexpkg
+```
+
+**Manually publish a new release**
+TODO
+
+**Initial upload to PyPI**
+TODO

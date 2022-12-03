@@ -1,3 +1,6 @@
+# mypy: disable-error-code=truthy-function
+
+
 def test_init():
     """Test importing objects from module"""
     # pylint: disable=import-outside-toplevel
@@ -6,7 +9,7 @@ def test_init():
     from lexpkg.subpkg.module import MY_VARIABLE, MyClass, my_function
 
     assert MY_VARIABLE
-    assert my_function
+    assert my_function  # type: ignore
     assert MyClass
 
     # Module import
@@ -35,3 +38,9 @@ def test_init():
     assert lexpkg.MY_VARIABLE
     assert lexpkg.my_function
     assert lexpkg.MyClass
+
+    # For 100% coverage
+    assert my_function() is None
+    my_class = MyClass()
+    assert my_class.true()
+    assert not my_class.false()

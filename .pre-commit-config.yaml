@@ -12,6 +12,8 @@ repos:
     rev: v4.4.0 # latest tag as of Nov 27, 2022
     hooks:
     -   id: debug-statements
+    -   id: check-toml
+    -   id: check-yaml
     -   id: end-of-file-fixer
     -   id: mixed-line-ending
     -   id: trailing-whitespace
@@ -28,4 +30,12 @@ repos:
     rev: v2.15.6
     hooks:
     -   id: pylint
-        args: ['--ignore', '.env,docs']
+        args: ['--ignore', 'docs']
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0 # latest tag as of Dec 2, 2022
+    hooks:
+    -   id: flake8
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.991 # latest tag as of Dec 2, 2022
+    hooks:
+    -   id: mypy
