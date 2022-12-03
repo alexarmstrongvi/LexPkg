@@ -24,7 +24,6 @@ repos:
     hooks:
     -   id: isort
         args: ["--profile", "black"]
-# TODO: Failing with import-error for tests/ files
 -   repo: https://github.com/PyCQA/pylint
     rev: v2.15.6
     hooks:
