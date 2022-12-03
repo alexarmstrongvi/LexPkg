@@ -32,6 +32,20 @@ An example packaged python project
 
 # Command line tools
 
+
+## Setup
+**Environment setup**
+```bash
+cd path/to/run
+path/to/python -m venv .venv
+pip install -e path/to/lexpkg
+```
+
+**Shell setup**
+```bash
+source .venv/bin/activate
+```
+
 ## Testing
 Manually run tests
 ```bash
@@ -42,11 +56,13 @@ python -m unittest -v tests/doctest_runner.py
 # Import order checker
 isort --check --skip .env ./
 # Linter
-pylint --recursive y --ignore .env ./ | grep -o "Module.*"
+pylint --recursive y --ignore .env,docs ./ | grep -o "Module.*"
 # Autoformatter
 black --check ./
 # Type checker
 mypy src/
+# Pre-commit hooks
+pre-commit run --all-files
 ```
 To followup on a specific file
 ```bash
