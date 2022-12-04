@@ -15,7 +15,9 @@ class MyClass:
         self.attribute = attribute
 
     def true(self) -> bool:
+        """Dummy true method"""
         return True
 
     def false(self) -> bool:
+        """Dummy false method"""
         return False

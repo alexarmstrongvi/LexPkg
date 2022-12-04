@@ -1,6 +1,13 @@
-"""import lexpkg"""
-# Configure behavior of "import lexpkg"
-# Enabled by default: lexpkg.module or lexpkg.subpkg
+"""
+LexPkg
+=======
+
+Configure behavior of "import lexpkg"
+Behavior enabled by default when adding __init__.py:
+    >> lexpkg.add
+    >> lexpkg.subpkg
+
+"""
 
 # Enable lexpkg.module.<module objects> and lexpkg.<module objects>
 from lexpkg.subpkg import module

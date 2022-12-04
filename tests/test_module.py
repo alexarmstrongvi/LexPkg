@@ -1,3 +1,4 @@
+"""Test module module"""
 # mypy: disable-error-code=truthy-function
 
 
