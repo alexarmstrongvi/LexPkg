@@ -2,6 +2,13 @@ LexPkg
 ========
 An example packaged python project
 
+![Build Status](https://github.com/alexarmstrongvi/LexPkg/actions/workflows/build_test.yml/badge.svg)
+![Code Covrage](https://codecov.io/gh/alexarmstrongvi/LexPkg/branch/main/graph/badge.svg)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/alexarmstrongvi/LexPkg)
+![GitHub issues](https://img.shields.io/github/issues/alexarmstrongvi/LexPkg)
+![GitHub license](https://img.shields.io/github/license/alexarmstrongvi/LexPkg)
+![Stars](https://img.shields.io/github/stars/alexarmstrongvi/LexPkg)
+
 # When to consider specific tools and infrastructure
 * Your code is a single use script with no 3rd party dependencies
     * No tools needed

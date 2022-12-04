@@ -4,7 +4,7 @@
 # - Offical Actions: https://github.com/orgs/actions/repositories
 
 # [Optional] Name of GitHub action displayed at Actions tab
-name: Build & Test
+name: build
 # On what events to trigger the GitHub action
 on:
     push:
@@ -47,8 +47,8 @@ jobs:
             - name: Run tox
               # Running tox on multiple python versions is unfortunately not
               # straightfoward (e.g. tox-gh-actions) so that is done in a
-              # separate job, "build". Normally, that is the only tox run
-              # projects would have. I keep this job as illustration only.
+              # separate job, "build", below. Normally, that is the only tox run
+              # projects would have. This job is kept as an illustration only.
               run: tox -e py310
 
             - name: Upload coverage to Codecov
