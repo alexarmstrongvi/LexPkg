@@ -1,0 +1,63 @@
+# Resources
+# - Official Docs: https://docs.github.com/en/actions
+#   - Workflow syntax: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+# - Offical Actions: https://github.com/orgs/actions/repositories
+
+# [Optional] Name of GitHub action displayed at Actions tab
+name: Build & Test
+# On what events to trigger the GitHub action
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+# Jobs to run during the GitHub action
+jobs:
+    # Job ID displayed at All workflows > Build_Test
+    build-py310:
+        # OS on which job is run
+        runs-on: ubuntu-latest
+        # Steps to run in this job
+        # - Each step is configured as a dictionary
+        # - The steps form a list that is executed in order
+        # - See docs for valid keys (e.g. name, run, uses, with, etc.)
+        # - Steps can "run" shell commands or "use" actions
+        # - Actions point to specific tag of a git repo with action code to run:
+        #     Syntax: <profile-name>/<repo-name>@<repo-tag>
+        #     Example: actions/checkout@v3
+        #     Example: rojopolis/spellcheck-github-actions@0.28.0
+        steps:
+            - name: Check out repository code
+              uses: actions/checkout@v3
+
+            - name: Setup Python
+              uses: actions/setup-python@v3
+              # Use the above action with the following kwargs
+              with:
+                python-version: "3.10"
+
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+                python -m install tox
+
+            - name: Run tox
+              # Running tox on multiple python versions is unfortunately not
+              # straightfoward (e.g. tox-gh-actions) so that is done in a
+              # separate job, "build". Normally, that is the only tox run
+              # projects would have. I keep this job as illustration only.
+              run: tox -e py310
+
+            - name: Print useful context variables
+              run: |
+                echo "Actor          : ${{ github.actor }}"
+                echo "Trigger event  : ${{ github.event_name }}"
+                echo "Host server OS : ${{ runner.os }}"
+                echo "Repository     : ${{ github.repository }}"
+                echo "Branch         : ${{ github.ref }}"
+                echo "Workspace path : ${{ github.workspace }}"
+                echo "Job status     : ${{ job.status }}"
+    # TODO: build:

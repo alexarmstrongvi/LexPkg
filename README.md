@@ -19,7 +19,8 @@ An example packaged python project
 * Several developers will be adding to the code
     * `pre-commit` and `.pre-commit-config.yaml`
     * `tox`, `tox.ini`
-    * CI/CD: GitHub Actions, CodeCov
+    * CI/CD: GitHub Actions, `.github/workflows`
+    * CodeCov
 * The code will be used (i.e. installed) by other projects
     * `pyproject.toml`
     * `setup.cfg` (`setup.py`?)
@@ -43,7 +44,7 @@ pip install -r requirements.txt -r requirements-dev.txt
 pip install -e path/to/lexpkg
 ```
 
-**Shell setup**
+**Reoccuring shell setup**
 ```bash
 source .venv/bin/activate
 ```
@@ -53,11 +54,11 @@ source .venv/bin/activate
 Manually run tests
 ```bash
 # PyTest
-pytest tests
+pytest tests/
 # DocTest
 python -m unittest -v tests/doctest_runner.py
 # Coverage checker
-coverage run -m pytest tests
+coverage run -m pytest tests/
 coverage report
 # Import order checker
 isort --check ./
@@ -73,7 +74,10 @@ MYPYPATH=src mypy tests/ # for running on tests/ only
 find ./src -name "*py" | xargs -n1 -t python -m mccabe --min 1
 # Pre-commit hooks
 pre-commit run --all-files
+# Environment tests
+tox ./
 ```
+
 To followup on a specific file
 ```bash
 pytest               path/to/file.py
@@ -119,7 +123,9 @@ pip install --index-url https://test.pypi.org/simple/ --no-deps lexpkg
 ```
 
 **Manually publish a new release**
+
 TODO
 
 **Initial upload to PyPI**
+
 TODO
