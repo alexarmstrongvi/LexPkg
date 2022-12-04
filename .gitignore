@@ -10,8 +10,9 @@ dist/
 *.egg-info/
 
 # Unit test / coverage reports
-htmlcov/
 .coverage
+htmlcov/
+coverage.*
 
 # Environments
 .venv/

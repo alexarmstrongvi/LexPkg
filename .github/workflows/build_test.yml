@@ -51,6 +51,9 @@ jobs:
               # projects would have. I keep this job as illustration only.
               run: tox -e py310
 
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v3
+
             - name: Print useful context variables
               run: |
                 echo "Actor          : ${{ github.actor }}"
