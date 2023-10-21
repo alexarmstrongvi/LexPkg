@@ -1,4 +1,4 @@
-#!/bin/usr/env python
+#!/usr/bin/env python
 """Module running doctest on all source files"""
 import doctest
 import pkgutil
@@ -24,7 +24,7 @@ def load_tests(
 def main():
     """Print packages found by pkgutil"""
     for importer, name, ispkg in pkgutil.walk_packages(PATH, PREFIX):
-        print(f"{name} [{ispkg=}]\n\t{importer = }")
+        print(f"{name} [{ispkg=}]\n\t{importer=}")
 
 
 if __name__ == "__main__":

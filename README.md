@@ -38,20 +38,31 @@ An example packaged python project
     * README badges
     * TestPyPI and PyPI, `twine`
 
-
-
-
 # Setup
-**Initial environment setup**
+The following project directory structure is recommended and assumed below:
+```
+└── $PROJECT_DIR - top level project directory
+    ├── src
+    │   ├── LexPkg
+    │   └── ...other source code, cloned repos, etc.
+    ├── bin - single file scripts and binaries. Good to append to $PATH
+    ├── outputs - any output files/directories created by running programs
+    └── ...build, data, etc.
+```
+Instructions below assume you are inside `$PROJECT_DIR`
+
+## Initial environment setup
+
 ```bash
-cd path/to/run # path/to/lexpkg also works
-path/to/python -m venv .venv
+cd $PROJECT_DIR
+python -m venv .venv --prompt .
 source .venv/bin/activate
-pip install -r requirements.txt -r requirements-dev.txt
-pip install -e path/to/lexpkg
+pip install --upgrade pip
+pip install --editable src/LexPkg
+pip install -r src/LexPkg/requirements.txt -r src/LexPkg/requirements-dev.txt
 ```
 
-**Reoccuring shell setup**
+## Reoccuring shell setup
 ```bash
 source .venv/bin/activate
 ```
