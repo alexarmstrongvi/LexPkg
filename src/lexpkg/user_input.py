@@ -1,32 +1,35 @@
 # Standard library
-import sys
-import select
-import time
-import logging
-from typing import Optional, Callable, Any
 from collections.abc import Collection
+import logging
+import select
+import sys
+import time
+from typing import Any, Callable, Optional
 
+# Globals
 log = logging.getLogger(__name__)
+
 
 ################################################################################
 def request_permission(prompt_prefix: str) -> bool:
     result = validated_input(
-        prompt_prefix = prompt_prefix,
-        valid_inputs  = ('y','n'),
-        transform     = lambda x : x.lower() if x is not None else None,
-        timeout       = 30,
-        default       = 'n'
+        prompt_prefix=prompt_prefix,
+        valid_inputs=("y", "n"),
+        transform=lambda x: x.lower() if x is not None else None,
+        timeout=30,
+        default="n",
     )
-    return result == 'y'
+    return result == "y"
+
 
 def validated_input(
     prompt_prefix: str,
     valid_inputs: Collection[object],
-    transform: Callable[[Optional[str]], Any] = lambda x : x,
+    transform: Callable[[Optional[str]], Any] = lambda x: x,
     timeout: Optional[float] = None,
     default: Optional[str] = None,
 ) -> Optional[str]:
-    '''Get input from user that validated to be an expected value
+    """Get input from user that validated to be an expected value
 
     Parameters
     ==========
@@ -38,25 +41,26 @@ def validated_input(
         Transformation to apply to user input before checking if valid
     timeout & default:
         see input_with_timeout()
-    '''
+    """
     prompt = f'{prompt_prefix} [{",".join(map(str, valid_inputs))}] '
     result = None
-    start = time.perf_counter() # for timeout
+    start = time.perf_counter()  # for timeout
     while result not in valid_inputs:
         if timeout is not None:
             timeout = max(0, timeout - (time.perf_counter() - start))
         result = input_with_timeout(prompt, timeout, default)
         if transform(result) not in valid_inputs:
-            log.error(f'Unacceptable input, %r', result)
+            log.error("Unacceptable input, %r", result)
 
     return result
+
 
 def input_with_timeout(
     prompt: str,
     timeout: Optional[float] = None,
     default: Optional[str] = None,
 ) -> Optional[str]:
-    '''Get user input with option to timeout
+    """Get user input with option to timeout
 
     Parameters
     ==========
@@ -70,7 +74,7 @@ def input_with_timeout(
         The default value returned if the user does not provide input within the
         timeout limit.
 
-    '''
+    """
     if timeout is None:
         return input(prompt)
 
@@ -87,9 +91,9 @@ def input_with_timeout(
     ready, _, _ = select.select([sys.stdin], [], [], timeout)
 
     if ready:
-        result = sys.stdin.readline().rstrip('\n')
+        result = sys.stdin.readline().rstrip("\n")
     else:
-        sys.stdout.write('\n')
-        log.warning('User input not provided. Returning default: %s', default)
+        sys.stdout.write("\n")
+        log.warning("User input not provided. Returning default: %s", default)
         result = default
     return result

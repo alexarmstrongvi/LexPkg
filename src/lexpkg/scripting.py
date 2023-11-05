@@ -1,74 +1,76 @@
-#!/usr/bin/env python
-'''
-<TODO> Module docstring
-'''
-# Standard library
+"""Utilities for scripts"""
+# Standard libraryimport
 import configparser
-import copy
+from copy import deepcopy
 import json
 import logging
 from pathlib import Path
-try:
-    import tomllib # Added in python 3.11
-except ImportError:
-    import tomli as tomllib # 3rd party
-from typing import Iterable, Optional
-import time
 import shutil
+import time
+from typing import Iterable, Optional
+
+try:  # isort: split
+    # Standard library
+    import tomllib  # Added in python 3.11
+except ImportError:
+    import tomli as tomllib  # 3rd party
 
 # 3rd party
 import yaml
 
-# Local
+# 1st party
 from lexpkg import user_input
 
 # Globals
 log = logging.getLogger(__name__)
 
+
 ################################################################################
 # NOTE: Projects are better off choosing a single configuration format so the
 # read and save functions below are mostly a reference for how to read files in
 # the various configuration libraries. Currently, I prefer YAML for configuring
-# scripts though TOML is becoming popular.
+# scripts
 def read_config(path: Path) -> dict:
-    '''Read configuration file'''
-    if path.suffix in ('.yaml', '.yml'):
-        with path.open('r') as ifile:
+    """Read configuration file"""
+    if path.suffix in (".yaml", ".yml"):
+        with path.open("r") as ifile:
             cfg = yaml.safe_load(ifile)
-    elif path.suffix == '.json':
-        with path.open('r') as ifile:
+    elif path.suffix == ".json":
+        with path.open("r") as ifile:
             cfg = json.load(ifile)
-    elif path.suffix == '.ini':
+    elif path.suffix == ".ini":
         cfg = configparser.ConfigParser()
         cfg.read(path)
         # NOTE: This type conversion is not perfect so consider sticking with
         # ConfigParser if INI is the configuration file type for the project
         cfg = dict(cfg)
-    elif path.suffix == '.toml':
-        with path.open('rb') as ifile:
+    elif path.suffix == ".toml":
+        with path.open("rb") as ifile:
             cfg = tomllib.load(ifile)
     else:
-        raise NotImplementedError(f'Unexpected file format: {path}')
+        raise NotImplementedError(f"Unexpected file format: {path}")
     return cfg
 
+
 def save_config(cfg: dict, path: Path) -> None:
-    '''Save configuration settings'''
-    if path.suffix in ('.yaml', '.yml'):
-        with path.open('w') as ofile:
+    """Save configuration settings"""
+    if path.suffix in (".yaml", ".yml"):
+        with path.open("w") as ofile:
             yaml.safe_dump(cfg, ofile)
-    elif path.suffix == '.json':
-        with path.open('w') as ofile:
+    elif path.suffix == ".json":
+        with path.open("w") as ofile:
             json.dump(cfg, ofile)
     # NOTE: There is no standard way to convert a python dictionary to INI
     # or TOML format as they are more limited than JSON and YAML
     else:
-        raise NotImplementedError(f'Unexpected file format: {path}')
+        raise NotImplementedError(f"Unexpected file format: {path}")
+
 
 def merge_config_files(
-    cfgs: Iterable[dict], 
+    cfgs: Iterable[dict],
     default_cfg: Optional[dict] = None,
 ) -> dict:
-    '''Merge configuration files with later ones overwriting earlier ones.
+    """Merge configuration files with later ones overwriting earlier ones.
 
     Parameters
     ==========
@@ -80,9 +82,9 @@ def merge_config_files(
     Returns
     =======
     Single merged configuration file
-    '''
+    """
     if default_cfg is not None:
-        merged_cfg = copy.deepcopy(default_cfg)
+        merged_cfg = deepcopy(default_cfg)
         allow_new_keys = False
     else:
         merged_cfg = {}
@@ -90,22 +92,23 @@ def merge_config_files(
 
     for cfg_update in cfgs:
         update_config(
-            original = merged_cfg, 
-            update = cfg_update, 
-            copy = False,
-            allow_new_keys = allow_new_keys,
+            original=merged_cfg,
+            update=cfg_update,
+            copy=False,
+            allow_new_keys=allow_new_keys,
         )
     return merged_cfg
 
+
 def update_config(
-    original        : dict,
-    update          : dict,
-    copy            : bool = True,
-    allow_new_keys  : bool = False,
-    concat_lists    : bool = False,
-    overwrite_lists : bool = False,
+    original: dict,
+    update: dict,
+    copy: bool = True,
+    allow_new_keys: bool = False,
+    concat_lists: bool = False,
+    overwrite_lists: bool = False,
 ) -> dict:
-    '''
+    """
     Update a configuration dictionary using a dictionary with updated values.
 
     The intended use case is combining common configuration formats (e.g. YAML,
@@ -133,17 +136,17 @@ def update_config(
     Returns
     =======
     Updated configuration dictionary
-    '''
+    """
 
     if copy:
         # Use shallow copy to reduce memory usage
         # This requires care be taken when updating mutable values below
-        original = original.copy() 
+        original = original.copy()
 
     for key, val in update.items():
         if key not in original:
             if not allow_new_keys:
-                raise KeyError(f'{key!r} not in original dictionary')
+                raise KeyError(f"{key!r} not in original dictionary")
             original[key] = val
         elif isinstance(val, dict):
             if original[key] is None:
@@ -157,18 +160,25 @@ def update_config(
             elif concat_lists:
                 original[key] = original_list + val
             else:
-                # Append new elements, preserving order from both lists.
-                # This will not handle duplicates already in the original or
-                # update. It is assumed the user intends those duplicates.
-                merged_list = original_list.copy()
-                for x in val:
-                    if x not in original_list:
-                        merged_list.append(x)
-                original[key] = merged_list
+                original[key] = update_list(original_list, val)
         else:
             original[key] = val
-    
+
     return original
+
+
+def update_list(original, update):
+    """Append new elements, preserving order from both lists.
+
+    This will not handle duplicates already in the original or
+    update. It is assumed the user intends those duplicates.
+    """
+    merged_list = original.copy()
+    for x in update:
+        if x not in original:
+            merged_list.append(x)
+    return merged_list
+
 
 def require_empty_dir(
     path: Path,
@@ -179,21 +189,20 @@ def require_empty_dir(
     if not path.is_dir():
         path.mkdir(parents=parents)
         return
-    elif not any(path.iterdir()):
+    if not any(path.iterdir()):
         return
 
     if not overwrite:
         # Check if user wants to delete contents of directory
-        overwrite = user_input.request_permission(f'Delete contents of {path}?')
+        overwrite = user_input.request_permission(f"Delete contents of {path}?")
 
-    files = list(path.rglob('*'))
+    files = list(path.rglob("*"))
     if overwrite:
-        log.warning('Deleting all %d files from %s', len(files), path)
-        time.sleep(2) # Give the user a moment to realize if this was a mistake
+        log.warning("Deleting all %d files from %s", len(files), path)
+        time.sleep(2)  # Give the user a moment to realize if this was a mistake
         shutil.rmtree(path)
         path.mkdir(parents=parents)
     else:
         raise FileExistsError(
-            f'{len(files)} files found (e.g. {files[0].name}): {path}'
+            f"{len(files)} files found (e.g. {files[0].name}): {path}"
         )
-

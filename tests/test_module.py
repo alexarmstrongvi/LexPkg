@@ -1,5 +1,6 @@
 """Test module module"""
 # mypy: disable-error-code=truthy-function
+# isort: off
 
 
 def test_init():

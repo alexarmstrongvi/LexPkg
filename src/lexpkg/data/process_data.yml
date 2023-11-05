@@ -1,10 +1,10 @@
 inputs:
-    image_dir: ./tests/data/
+    image_dir: null
     image_suffix: .png
     color_mode: RGB
 
 outputs:
-    dir : ./tests/tmp/outputs
+    dir : null
     overwrite : False
     scores_fname : 'scores.txt'
     debug_images: null
@@ -12,7 +12,7 @@ outputs:
     logging:
         # kwargs for logging.basicConfig()
         format : '%(levelname)8s | %(module)s :: %(message)s'
-        level: DEBUG
+        level: INFO
         force: True
         filename : null #run.log
         filemode : w
