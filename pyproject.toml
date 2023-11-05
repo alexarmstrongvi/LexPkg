@@ -2,14 +2,16 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+################################################################################
 [project]
 # Required metadata
 name = "lexpkg"
 dynamic = ["version"]
-
-# Optional installation requirements
-# requires-python = ">=3.9"
-
+# Installation requirements
+requires-python = ">=3.8"
+dependencies = [
+    "pyyaml",
+]
 # Optional metadata
 # authors = [
 #     { name = "Alex Armstrong" },
@@ -25,13 +27,46 @@ dynamic = ["version"]
 # [project.urls]
 # "Homepage" = "https://github.com/alexarmstrongvi/LexPkg"
 
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest",
+    "tox",
+    # REPL
+    "ipykernel",
+    # Debugging
+    "ipdb",
+    # Code quality
+    "pylint",     # Linter
+    "flake8",     # Linter
+    "ruff",       # Linter
+    "isort",      # Import order checker
+    "black",      # Formatter
+    "mypy",       # Type checker
+    "radon",      # Complexity checker
+    "coverage",   # Coverage checker
+    "pytest-cov", # Coverage checker pluging for pytest
+    # Documentation
+    "sphinx",
+    # Centralized Version Control
+    "pre-commit",
+]
+build = [
+    "build", # Generating
+    "twine", # Uploading
+]
+
 [project.scripts]
 lexpkg = "lexpkg.lexpkg:main"
 lexscript = "lexpkg.bin.lexscript:main"
 process_data = "lexpkg.bin.process_data:main"
 
+################################################################################
 [tool.setuptools.dynamic]
 version = {attr = "lexpkg.__version__"}
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules"
 
 [tool.isort]
 import_heading_stdlib = "Standard library"

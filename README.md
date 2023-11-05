@@ -79,8 +79,7 @@ Development
 ```sh
 PKG_PATH="path/to/LexPkg"
 git clone git@github.com:alexarmstrongvi/LexPkg.git "$PKG_PATH"
-pip install --editable "$PKG_PATH"
-pip install -r "$PKG_PATH/requirements-dev.txt"
+pip install --editable "$PKG_PATH[dev]"
 ```
 
 <a name="python-package-basics"></a>
@@ -98,11 +97,10 @@ Python Package Basics
     * Version control: `git`, `.gitignore`
     * `README.md` (`.txt`, `.rst`)
     * Testing: `tests/`, `pytest`, `doctest`, `unittest`
-    * Linting: `pylint`; `flake8`
-    * Formatting: `isort`; `black`
+    * Linting and Formatting: `pylint`; `flake8`; `isort`; `black`; `ruff`
     * Complexity Checker: `mccabe`
-    * Type Checking: `mypy`
-    * Coverage: `coverage`
+    * Type Checking: `mypy`, `pyright`
+    * Coverage: `coverage`, `pytest-cov`
 * Several developers will be adding to the code
     * `pre-commit` and `.pre-commit-config.yaml`
     * `tox`, `tox.ini`
@@ -149,8 +147,7 @@ cd "$WORKSPACE_DIR"
 python -m venv .venv --prompt my_venv_name
 source .venv/bin/activate
 pip install --upgrade pip
-pip install --editable src/LexPkg
-pip install -r src/LexPkg/requirements-dev.txt
+pip install --editable "src/LexPkg[dev]"
 ```
 
 ### Reoccuring shell setup
@@ -176,44 +173,53 @@ alias cdws="cd $WORKSPACE_DIR"
 ```
 
 ## Testing
-Manually run tests
+Manually run tests and checks
 ```bash
 # PyTest
 ptest "$LEXPKG_PATH"
 # Coverage checker
 coverage run -m pytest "$LEXPKG_PATH"
 coverage report
+# Linting
+pylint "$LEXPKG_PATH"
+flake8 "$LEXPKG_PATH"
+ruff check "$LEXPKG_PATH"
+black --check "$LEXPKG_PATH"
 # Import order checker
 isort --check "$LEXPKG_PATH"
-# Linter
-pylint "$LEXPKG_PATH" | grep -o "Module.*"
-flake8 --extend-exclude .venv --format quiet-filename "$LEXPKG_PATH"
-# Autoformatter
-black --check "$LEXPKG_PATH"
 # Type checker
 mypy --exclude docs "$LEXPKG_PATH"
 MYPYPATH=src mypy tests/ # for running on tests/ only
 # Complexity checker
-find ./src -name "*py" | xargs -n1 -t python -m mccabe --min 1
-# Pre-commit hooks [THIS WILL MODIFY CODE]
-pre-commit run --all-files
+radon cc "$LEXPKG_PATH" # replace cc with raw, mi, or hal
 # Environment tests
 tox "$LEXPKG_PATH"
 ```
+
 
 To followup on a specific file
 ```bash
 pytest               path/to/file.py
 python -m doctest -v path/to/file.py
 coverage report -m   path/to/file.py
-isort --check --diff path/to/file.py
 pylint               path/to/file.py
 flake8               path/to/file.py
+ruff --check         path/to/file.py
 black --check --diff path/to/file.py
+isort --check --diff path/to/file.py
 mypy                 path/to/file.py
-python -m mccabe     path/to/file.py
+radon cc             path/to/file.py
 # pre-commit N/A
 ```
+
+When ready to autoformat the code or run all pre-commit modifications
+```bash
+isort "$LEXPKG_PATH"
+ruff format "$LEXPKG_PATH"
+black "$LEXPKG_PATH"
+pre-commit run --all-files
+```
+
 ## Documentation
 To generate and view the documentation:
 ```bash
