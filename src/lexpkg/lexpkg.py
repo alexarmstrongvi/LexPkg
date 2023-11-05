@@ -1,4 +1,4 @@
-"""Example of main project script"""
+"""Example of main project script."""
 
 
 def main():

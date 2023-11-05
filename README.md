@@ -180,13 +180,14 @@ pytest "$LEXPKG_PATH"
 # Coverage checker
 coverage run -m pytest "$LEXPKG_PATH"
 coverage report
-# Linting
+# Linting and Formatting
 flake8 "$LEXPKG_PATH"
 pylint "$LEXPKG_PATH"
 ruff check "$LEXPKG_PATH"
 black --check "$LEXPKG_PATH"
-# Import order checker
 isort --check "$LEXPKG_PATH"
+pydocstyle "$LEXPKG_PATH"
+docformatter --recursive --check "$LEXPKG_PATH"
 # Type checker
 mypy --config-file="$LEXPKG_PATH/pyproject.toml" "$LEXPKG_PATH"
 # Complexity checker
@@ -205,6 +206,8 @@ pylint               path/to/file.py
 ruff --check         path/to/file.py
 black --check --diff path/to/file.py
 isort --check --diff path/to/file.py
+pydocstyle           path/to/file.py
+docformatter --check path/to/file.py
 mypy                 path/to/file.py
 radon cc             path/to/file.py
 ```
@@ -214,6 +217,7 @@ When ready to autoformat the code or run all pre-commit modifications
 isort "$LEXPKG_PATH"
 ruff format "$LEXPKG_PATH"
 black "$LEXPKG_PATH"
+docformatter --in-place "$LEXPKG_PATH"
 pre-commit run --all-files
 ```
 

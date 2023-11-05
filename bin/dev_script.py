@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Example of developer script"""
+"""Example of developer script."""
 
 # 1st party
 import lexpkg

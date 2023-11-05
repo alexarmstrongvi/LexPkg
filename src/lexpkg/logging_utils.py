@@ -1,3 +1,4 @@
+"""Utilities for logging."""
 # Standard library
 import io
 import logging
@@ -32,6 +33,7 @@ def configure_logging(
     dict_config: Optional[dict] = None,
     **basic_config,
 ) -> None:
+    """Configure logging with any of the available logging config APIs."""
     # Update log files to be within output dir
     if output_dir is not None:
         if basic_config.get("filename"):
@@ -65,6 +67,7 @@ def configure_logging(
 
 ################################################################################
 def level_name(level: int) -> str:
+    """Convert level number into a name."""
     name = ""
     if level >= 50:
         name = "CRITICAL"
@@ -85,11 +88,13 @@ def level_name(level: int) -> str:
 
 
 def all_logger_names() -> list[str]:
+    """Get the names of all loggers."""
     # pylint: disable=no-member
     return ["root"] + sorted(logging.root.manager.loggerDict)
 
 
 def logging_hierarchy_str():
+    """Summarize the hierarchy of loggers."""
     ostr = ""
     for name in all_logger_names():
         if name == "root":
@@ -114,6 +119,7 @@ def logging_hierarchy_str():
 
 
 def log_summary_str(logger):
+    """Summarize logger."""
     log_lvl = logger.level
     eff_lvl = logger.getEffectiveLevel()
     min_lvl = min(
@@ -138,15 +144,18 @@ def log_summary_str(logger):
 
 
 def log_multiline(log_call, txt):
+    """Log a multiline message in multiple log messages."""
     for line in txt.splitlines():
         log_call(line)
 
 
 def summarize_logging() -> str:
+    """Summarize the root logger and all it's child loggers."""
     return logging_hierarchy_str() + "\n" + log_summary_str(logging.root)
 
 
 def summarize_version_control() -> str:
+    """Summarize the version control state of this package."""
     # TODO: Handle multiple version control systems
     # import version_control
     # if version_control.SYSTEM is not version_control.VCS.GIT:
@@ -170,16 +179,17 @@ def summarize_version_control() -> str:
 
 
 class RecordAttributeAdder(logging.Filter):  # pylint: disable=too-few-public-methods
-    """Pseudo-Filter that adds useful attributes to log records for formatting"""
+    """Pseudo-Filter that adds useful attributes to log records for
+    formatting."""
 
     def filter(self, record: logging.LogRecord):
-        # Strip off parent logger names
+        """Strip off parent logger names."""
         record.name_last = record.name.rsplit(".", 1)[-1]
         return True
 
 
 def redirect_exceptions_to_logger(logger: logging.Logger = logging.root):
-    # Overwrite hook for processing exceptions
+    """Overwrite hook for processing exceptions."""
     # https://stackoverflow.com/questions/6234405/logging-uncaught-exceptions-in-python
     # https://stackoverflow.com/questions/8050775/using-pythons-logging-module-to-log-all-exceptions-and-errors
     def handle_exception(typ, val, tb):
@@ -202,7 +212,7 @@ def redirect_exceptions_to_logger(logger: logging.Logger = logging.root):
 
 
 def capture_python_stdout(logger: logging.Logger = logging.root):
-    """Capture all stdout/stderr and send to logger
+    """Capture all stdout/stderr and send to logger.
 
     NOTES/WARNINGS
     - This will capture messages from all non-child loggers, usually duplicating
@@ -220,12 +230,16 @@ def capture_python_stdout(logger: logging.Logger = logging.root):
 
 
 class LoggerWriter(io.TextIOWrapper):
+    """Wrapper of stdout or stderr to redirect messages to logger."""
+
     def __init__(self, writer):
+        """Initialize self."""
         # self.encoding = sys.stdout.encoding # Getting issues with doctest
         self._writer = writer
         self._msg = ""
 
-    def write(self, message):
+    def write(self, message: str):
+        """Write message to IO buffer."""
         for line in message.rstrip().splitlines():
             self._writer(line.rstrip())
         # Prevent carriage return and empty newlines
@@ -238,6 +252,7 @@ class LoggerWriter(io.TextIOWrapper):
         #    self._msg = self._msg[pos+1:]
 
     def flush(self):
+        """Flush messages to writer."""
         pass
         # if self._msg != '':
         #     self._writer(self._msg)

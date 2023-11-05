@@ -29,7 +29,7 @@ def validated_input(
     timeout: Optional[float] = None,
     default: Optional[str] = None,
 ) -> Optional[str]:
-    """Get input from user that validated to be an expected value
+    """Get input from user that validated to be an expected value.
 
     Parameters
     ==========
@@ -60,7 +60,7 @@ def input_with_timeout(
     timeout: Optional[float] = None,
     default: Optional[str] = None,
 ) -> Optional[str]:
-    """Get user input with option to timeout
+    """Get user input with option to timeout.
 
     Parameters
     ==========
@@ -73,7 +73,6 @@ def input_with_timeout(
     default:
         The default value returned if the user does not provide input within the
         timeout limit.
-
     """
     if timeout is None:
         return input(prompt)

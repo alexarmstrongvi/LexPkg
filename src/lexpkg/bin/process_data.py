@@ -1,11 +1,11 @@
 #!/usr/bin/env python
-"""
-Example script of processing data
+"""Example script of processing data.
 
-This script includes more features than necessary for simple personal-use
-scripts. Feel free to keep what you need. The target use case for this example
-is a script intended for many users, with many configuration options, multiple
-inputs and outputs, and a need for reproducibility.
+This script includes more features than necessary for simple personal-
+use scripts. Feel free to keep what you need. The target use case for
+this example is a script intended for many users, with many
+configuration options, multiple inputs and outputs, and a need for
+reproducibility.
 """
 
 # Standard library
@@ -112,7 +112,7 @@ def save_scores(scores, opath):
 ################################################################################
 # Scripting functions that do not generalize well beyond this script
 def validate_environment() -> None:
-    """Validate the program's runtime environment"""
+    """Validate the program's runtime environment."""
     if os.name == "nt":
         raise OSError("I have not tested any of this on Windows")
     if "HOME" not in os.environ:
@@ -151,7 +151,7 @@ def parse_argv() -> argparse.Namespace:
 
 
 def override_config(cfg: dict, args: argparse.Namespace, copy: bool = True) -> dict:
-    """Override configuration settings with command line arguments"""
+    """Override configuration settings with command line arguments."""
     if copy:
         cfg = deepcopy(cfg)
     if args.input:
@@ -169,7 +169,7 @@ def override_config(cfg: dict, args: argparse.Namespace, copy: bool = True) -> d
 
 
 def reformat_config(cfg: dict) -> dict:
-    """Reformat and/or update configuration
+    """Reformat and/or update configuration.
 
     I generally recommend avoiding this if possible as it obscures the
     relationship between the input configuration file layout and the
@@ -209,7 +209,8 @@ def reformat_config(cfg: dict) -> dict:
 
 
 def validate_config(cfg: dict) -> None:
-    """Validate values in configuration now before they cause problems later"""
+    """Validate values in configuration now before they cause problems
+    later."""
     # NOTE: It is not important to check for every error but often there are
     # some common user errors that may lead to confusing error messages or not
     # cause issues until later in the program (e.g. typo in an output path). For

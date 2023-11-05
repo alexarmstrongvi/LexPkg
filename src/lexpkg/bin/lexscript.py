@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Example package script"""
+"""Example package script."""
 
 
 def main():

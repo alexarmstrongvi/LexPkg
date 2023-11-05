@@ -1,4 +1,4 @@
-"""Example of module level script
+"""Example of module level script.
 
 NOTE: This file will be called if the following is run from the command line:
 python -m lexpkg

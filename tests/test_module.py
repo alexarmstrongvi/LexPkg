@@ -1,10 +1,10 @@
-"""Test module module"""
+"""Test module module."""
 # mypy: disable-error-code=truthy-function
 # isort: off
 
 
 def test_init():
-    """Test importing objects from module"""
+    """Test importing objects from module."""
     # pylint: disable=import-outside-toplevel
 
     # Object import

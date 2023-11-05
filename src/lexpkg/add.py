@@ -1,8 +1,8 @@
-"""Example module in top-level package"""
+"""Example module in top-level package."""
 
 
 def add_six(num: float) -> float:
-    """Add six to the input number
+    """Add six to the input number.
 
     >>> add_six(3)
     9

@@ -1,4 +1,4 @@
-"""Utilities for scripts"""
+"""Utilities for scripts."""
 # Standard library
 import configparser
 from copy import deepcopy
@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 # the various configuration libraries. Currently, I prefer YAML for configuring
 # scripts
 def read_config(path: Path) -> dict:
-    """Read configuration file"""
+    """Read configuration file."""
     if path.suffix in (".yaml", ".yml"):
         with path.open("r") as ifile:
             cfg = yaml.safe_load(ifile)
@@ -54,7 +54,7 @@ def read_config(path: Path) -> dict:
 
 
 def save_config(cfg: dict, path: Path) -> None:
-    """Save configuration settings"""
+    """Save configuration settings."""
     if path.suffix in (".yaml", ".yml"):
         with path.open("w") as ofile:
             yaml.safe_dump(cfg, ofile)
@@ -109,8 +109,8 @@ def update_config(
     concat_lists: bool = False,
     overwrite_lists: bool = False,
 ) -> dict:
-    """
-    Update a configuration dictionary using a dictionary with updated values.
+    """Update a configuration dictionary using a dictionary with updated
+    values.
 
     The intended use case is combining common configuration formats (e.g. YAML,
     JSON, TOML) after being read into python dictionaries. Therefore, this
@@ -171,8 +171,8 @@ def update_config(
 def update_list(original, update):
     """Append new elements, preserving order from both lists.
 
-    This will not handle duplicates already in the original or
-    update. It is assumed the user intends those duplicates.
+    This will not handle duplicates already in the original or update.
+    It is assumed the user intends those duplicates.
     """
     merged_list = original.copy()
     for x in update:
