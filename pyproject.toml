@@ -89,3 +89,8 @@ disable = [
 ]
 [tool.pylint.design]
 max-args = 10 
+
+[tool.mypy]
+exclude = [
+    "docs/",
+]

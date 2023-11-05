@@ -1,4 +1,5 @@
 # Standard library
+import io
 import logging
 import logging.config
 from pathlib import Path
@@ -29,19 +30,19 @@ def configure_logging(
     output_dir: Optional[Path] = None,
     file_config: Optional[Path] = None,
     dict_config: Optional[dict] = None,
-    **basicConfig,
+    **basic_config,
 ) -> None:
     # Update log files to be within output dir
     if output_dir is not None:
-        if basicConfig.get("filename"):
-            basicConfig["filename"] = str(output_dir / basicConfig["filename"])
+        if basic_config.get("filename"):
+            basic_config["filename"] = str(output_dir / basic_config["filename"])
         if dict_config is not None:
             for hcfg in dict_config.get("handlers", {}).values():
                 if hcfg.get("filename") is not None:
                     hcfg["filename"] = str(output_dir / hcfg["filename"])
 
-    if len(basicConfig) > 0:
-        logging.basicConfig(**basicConfig)
+    if len(basic_config) > 0:
+        logging.basicConfig(**basic_config)
 
     if file_config is not None:
         logging.config.fileConfig(file_config)
@@ -49,7 +50,7 @@ def configure_logging(
     if dict_config is not None:
         logging.config.dictConfig(**dict_config)
 
-    n_args = sum(map(bool, (file_config, dict_config, basicConfig)))
+    n_args = sum(map(bool, (file_config, dict_config, basic_config)))
     if n_args > 1:
         log.warning(
             "%d logging configurations provided. "
@@ -83,8 +84,9 @@ def level_name(level: int) -> str:
     return name
 
 
-def all_logger_names() -> [str]:
-    return ["root"] + sorted(logging.root.manager.loggerDict)  # pylint: disable=no-member
+def all_logger_names() -> list[str]:
+    # pylint: disable=no-member
+    return ["root"] + sorted(logging.root.manager.loggerDict)
 
 
 def logging_hierarchy_str():
@@ -214,10 +216,10 @@ def capture_python_stdout(logger: logging.Logger = logging.root):
     # Overwrite python stdout and stderr streams
     # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
     sys.stdout = LoggerWriter(stdout_log.info)
-    sys.stderr = LoggerWriter(stderr_log.warning)  # stderr_log.error?
+    sys.stderr = LoggerWriter(stderr_log.warning)
 
 
-class LoggerWriter:
+class LoggerWriter(io.TextIOWrapper):
     def __init__(self, writer):
         # self.encoding = sys.stdout.encoding # Getting issues with doctest
         self._writer = writer
@@ -226,7 +228,7 @@ class LoggerWriter:
     def write(self, message):
         for line in message.rstrip().splitlines():
             self._writer(line.rstrip())
-        ## Prevent carriage return and empty newlines
+        # Prevent carriage return and empty newlines
         # msg = message.lstrip('\r').lstrip('\n')
 
         # self._msg = self._msg + msg
@@ -248,7 +250,7 @@ class LoggerWriter:
 #     # TODO: Currently doesn't work
 #     # Also risk of infinite pipe loop as python stdout gets redirected back
 #     # to logger that prints it to stdout
-#     # Source: https://stackoverflow.com/questions/616645/how-to-duplicate-sys-stdout-to-a-log-file
+#     # https://stackoverflow.com/questions/616645/how-to-duplicate-sys-stdout-to-a-log-file
 #
 #     tee = subprocess.Popen(["tee", "log.txt"], stdin=subprocess.PIPE)
 #     # Cause tee's stdin to get a copy of our stdin/stdout (as well as that

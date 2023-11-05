@@ -1,5 +1,5 @@
 """Utilities for scripts"""
-# Standard libraryimport
+# Standard library
 import configparser
 from copy import deepcopy
 import json
@@ -13,7 +13,8 @@ try:  # isort: split
     # Standard library
     import tomllib  # Added in python 3.11
 except ImportError:
-    import tomli as tomllib  # 3rd party
+    # 3rd party
+    import tomli as tomllib  # type: ignore
 
 # 3rd party
 import yaml

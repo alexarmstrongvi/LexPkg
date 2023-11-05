@@ -176,40 +176,37 @@ alias cdws="cd $WORKSPACE_DIR"
 Manually run tests and checks
 ```bash
 # PyTest
-ptest "$LEXPKG_PATH"
+pytest "$LEXPKG_PATH"
 # Coverage checker
 coverage run -m pytest "$LEXPKG_PATH"
 coverage report
 # Linting
-pylint "$LEXPKG_PATH"
 flake8 "$LEXPKG_PATH"
+pylint "$LEXPKG_PATH"
 ruff check "$LEXPKG_PATH"
 black --check "$LEXPKG_PATH"
 # Import order checker
 isort --check "$LEXPKG_PATH"
 # Type checker
-mypy --exclude docs "$LEXPKG_PATH"
-MYPYPATH=src mypy tests/ # for running on tests/ only
+mypy --config-file="$LEXPKG_PATH/pyproject.toml" "$LEXPKG_PATH"
 # Complexity checker
 radon cc "$LEXPKG_PATH" # replace cc with raw, mi, or hal
 # Environment tests
 tox "$LEXPKG_PATH"
 ```
 
-
 To followup on a specific file
 ```bash
 pytest               path/to/file.py
 python -m doctest -v path/to/file.py
 coverage report -m   path/to/file.py
-pylint               path/to/file.py
 flake8               path/to/file.py
+pylint               path/to/file.py
 ruff --check         path/to/file.py
 black --check --diff path/to/file.py
 isort --check --diff path/to/file.py
 mypy                 path/to/file.py
 radon cc             path/to/file.py
-# pre-commit N/A
 ```
 
 When ready to autoformat the code or run all pre-commit modifications
@@ -265,30 +262,13 @@ Conventions and Style Guide
 ================================================================================
 <a href="#top">back to top of page</a>
 
+## Scripting
+* Scripts should not require the user run it from a particular directory
+* Allow the user to specify where outputs are stored and avoid defaulting to
+  the current directory
+* Have checks to avoid unintentionally overwriting files
+
 ## Logging
-
-Meaning/Goal of logging levels
-* `CRITICAL`
-    * Indicates an error occurred that the program cannot gracefully handle
-    * **Should never occur**
-* `ERROR`
-    * Indicates an error occurred that the program will try to handle but
-      results may be impacted.
-    * **Should never occur in common use cases**
-* `WARNING`
-    * Indicates something undesirable happened that the program should be able
-      to handle without significantly impacting results.
-    * **Should never occur in common use cases** but does not require issues
-      and can be permanent for unsupported uses cases to discourage users.
-* `INFO`
-    * Indicates the program is progessing as expected
-    * **Should occur frequently enough** so the user knows the program is not
-      frozen (e.g. 1/sec) but not so frequently that they are unreadble.
-* `DEBUG`
-    * Catch all for anything not fitting in the other categories that developers
-      need to debug
-
-General guidelines
 * With the expection of DEBUG,
     * try to avoid logging so frequently that messages are pushed off screen
       before they can be read

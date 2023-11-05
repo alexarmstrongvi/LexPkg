@@ -90,6 +90,7 @@ def input_with_timeout(
     # set to False.
     ready, _, _ = select.select([sys.stdin], [], [], timeout)
 
+    result: Optional[str]
     if ready:
         result = sys.stdin.readline().rstrip("\n")
     else:

@@ -18,7 +18,17 @@ from pathlib import Path
 from lexpkg.subpkg import module
 from lexpkg.subpkg.module import MY_VARIABLE, MyClass, my_function
 
+__all__ = [
+    "__version__",
+    "PACKAGE_DIR",
+    "SRC_DIR",
+    "module",
+    "MY_VARIABLE",
+    "MyClass",
+    "my_function",
+]
+
 # Globals
 __version__ = "0.0.1"
 PACKAGE_DIR = Path(__file__).parents[2]
-SRC_DIR = PACKAGE_DIR / "src/lexpkg"
+SRC_DIR = PACKAGE_DIR / "src/lexpkg"  # same as Path(__path__[0])
