@@ -8,7 +8,7 @@ outputs:
     overwrite : False
     scores_fname : 'scores.txt'
     debug_images: null
-    
+
     logging:
         # kwargs for logging.basicConfig()
         format : '%(levelname)8s | %(module)s :: %(message)s'
@@ -24,5 +24,3 @@ preprocessing:
 scoring:
     kwarg1 : val3
     kwarg2 : val4
-
-

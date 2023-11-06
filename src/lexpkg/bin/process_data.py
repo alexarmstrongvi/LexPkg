@@ -89,6 +89,7 @@ def main():
 
 ################################################################################
 # Business logic
+# pylint: disable=unused-argument
 def read_image(path, color_mode):
     return [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
@@ -109,6 +110,9 @@ def save_scores(scores, opath):
     opath.write_text(str(scores))
 
 
+# pylint: enable=unused-argument
+
+
 ################################################################################
 # Scripting functions that do not generalize well beyond this script
 def validate_environment() -> None:
@@ -126,7 +130,7 @@ def parse_argv() -> argparse.Namespace:
         "-c",
         "--configs",
         nargs="+",
-        default=list(),
+        default=[],
         help="Configuration files",
     )
     parser.add_argument(

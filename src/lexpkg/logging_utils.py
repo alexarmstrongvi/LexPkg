@@ -190,6 +190,7 @@ class RecordAttributeAdder(logging.Filter):  # pylint: disable=too-few-public-me
 
 def redirect_exceptions_to_logger(logger: logging.Logger = logging.root):
     """Overwrite hook for processing exceptions."""
+
     # https://stackoverflow.com/questions/6234405/logging-uncaught-exceptions-in-python
     # https://stackoverflow.com/questions/8050775/using-pythons-logging-module-to-log-all-exceptions-and-errors
     def handle_exception(typ, val, tb):
@@ -253,7 +254,6 @@ class LoggerWriter(io.TextIOWrapper):
 
     def flush(self):
         """Flush messages to writer."""
-        pass
         # if self._msg != '':
         #     self._writer(self._msg)
         #     self._msg = ''

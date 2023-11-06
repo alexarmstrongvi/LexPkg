@@ -164,6 +164,7 @@ source .venv/bin/activate
 
 # Environment variables
 WORKSPACE_DIR='path/to/workspace'
+LEXPKG_DIR="$WORKSPACE_DIR/src/LexPkg"
 PATH="$PATH:$WORKSPACE_DIR/bin"
 PATH="$PATH:$WORKSPACE_DIR/src/LexPkg/bin"
 PYTHONPATH="$WORKSPACE_DIR/tools"
@@ -173,27 +174,28 @@ alias cdws="cd $WORKSPACE_DIR"
 ```
 
 ## Testing
-Manually run tests and checks
+Manually run tests and checks from within the package dir
 ```bash
 # PyTest
-pytest "$LEXPKG_PATH"
+cd $LEXPKG_DIR
+pytest
 # Coverage checker
-coverage run -m pytest "$LEXPKG_PATH"
+coverage run -m pytest
 coverage report
 # Linting and Formatting
-flake8 "$LEXPKG_PATH"
-pylint "$LEXPKG_PATH"
-ruff check "$LEXPKG_PATH"
-black --check "$LEXPKG_PATH"
-isort --check "$LEXPKG_PATH"
-pydocstyle "$LEXPKG_PATH"
-docformatter --recursive --check "$LEXPKG_PATH"
+flake8
+pylint .
+ruff check .
+black --check .
+isort --check .
+pydocstyle
+docformatter --recursive --check .
 # Type checker
-mypy --config-file="$LEXPKG_PATH/pyproject.toml" "$LEXPKG_PATH"
+mypy .
 # Complexity checker
-radon cc "$LEXPKG_PATH" # replace cc with raw, mi, or hal
+radon cc . # replace cc with raw, mi, or hal
 # Environment tests
-tox "$LEXPKG_PATH"
+tox run-parallel
 ```
 
 To followup on a specific file
@@ -217,7 +219,7 @@ When ready to autoformat the code or run all pre-commit modifications
 isort "$LEXPKG_PATH"
 ruff format "$LEXPKG_PATH"
 black "$LEXPKG_PATH"
-docformatter --in-place "$LEXPKG_PATH"
+docformatter --recursive --in-place "$LEXPKG_PATH"
 pre-commit run --all-files
 ```
 

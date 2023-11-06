@@ -76,4 +76,3 @@ References
 <a href="#top">back to top of page</a>
 
 **(TODO)** Links to documentation, maintainer emails, background reading, etc.
-
