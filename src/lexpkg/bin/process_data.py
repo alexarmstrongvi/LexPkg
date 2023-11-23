@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 """Example script of processing data.
 
+>> process_data.py -i inputs/ -o output/
+>> process_data.py -i inputs/ -o output/ -l DEBUG --log-file run.log --log-cli-level INFO
+>> process_data.py -c my_config.yml
+>> process_data.py -c my_config.yml -o output/ -l DEBUG
+
 This script includes more features than necessary for simple personal-
 use scripts. Feel free to keep what you need. The target use case for
 this example is a script intended for many users, with many
@@ -11,16 +16,25 @@ reproducibility.
 # Standard library
 import argparse
 from copy import deepcopy
+from datetime import datetime
 import logging
 import os
 from pathlib import Path
 import pprint
+import sys
 
 # 3rd party
 import yaml
 
 # 1st party
-from lexpkg import SRC_DIR, git, logging_utils, scripting
+from lexpkg import SRC_DIR, git, scripting
+from lexpkg.logging_utils import (
+    configure_logging,
+    require_root_console_handler,
+    summarize_logging,
+    summarize_version_control,
+    update_log_filenames,
+)
 
 # Globals
 log = logging.getLogger(__name__)
@@ -34,7 +48,7 @@ def main():
     # Load and merge all user configuration options
     args = parse_argv()
     default_cfg = scripting.read_config(DEFAULT_CFG)
-    cfgs = [scripting.read_config(Path(p)) for p in args.configs]
+    cfgs = (scripting.read_config(Path(p)) for p in args.configs)
     cfg = scripting.merge_config_files(cfgs, default_cfg)
     cfg = override_config(cfg, args)
     cfg = reformat_config(cfg)
@@ -46,9 +60,13 @@ def main():
     odir = Path(ocfg["dir"])
 
     # Setup
+    if ocfg["timestamp_subdir"]:
+        odir = odir / datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     scripting.require_empty_dir(odir, ocfg["overwrite"])
-    logging_utils.configure_logging(output_dir=odir, **ocfg["logging"])
-    log.debug("Logging Summary:\n%s", logging_utils.summarize_logging())
+    update_log_filenames(odir, ocfg["logging"])
+    configure_logging(**ocfg["logging"])
+    require_root_console_handler(args.log_cli_level)
+    log.debug("Logging Summary:\n%s", summarize_logging())
 
     # Reproducibility
     log.debug("Final configuration:\n%s", pprint.pformat(cfg, indent=4))
@@ -56,7 +74,7 @@ def main():
     yaml.safe_dump(cfg, opath.open("w"))
     log.info("Final configuration saved: %s", opath)
 
-    log.info("Version Control Summary:\n%s", logging_utils.summarize_version_control())
+    log.debug("Version Control Summary:\n%s", summarize_version_control())
     opath = odir / "git_diff.patch"
     opath.write_text(git.get_diff())
     log.info("Git diff patch saved: %s", opath)
@@ -151,6 +169,16 @@ def parse_argv() -> argparse.Namespace:
         choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
         help="Root logging level",
     )
+    parser.add_argument(
+        "--log-file",
+        type=Path,
+        help="Logging output file",
+    )
+    parser.add_argument(
+        "--log-cli-level",  # log_cli_level
+        choices=("CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"),
+        help="Console logging level (if stricter than root level)",
+    )
     return parser.parse_args()
 
 
@@ -162,13 +190,13 @@ def override_config(cfg: dict, args: argparse.Namespace, copy: bool = True) -> d
         cfg["inputs"]["image_dir"] = str(args.input)
     if args.odir:
         cfg["outputs"]["dir"] = str(args.odir)
+    log_cfg = cfg["outputs"]["logging"]
     if args.log_level:
-        log_cfg = cfg["outputs"]["logging"]
         if "level" in log_cfg:
             log_cfg["level"] = args.log_level
-        log_cfg = log_cfg["dictConfig"]
-        if log_cfg is not None and log_cfg.get("root"):
-            log_cfg["root"]["level"] = args.log_level
+    if args.log_file:
+        if "filename" in log_cfg:
+            log_cfg["filename"] = str(args.log_file)
     return cfg
 
 
@@ -222,6 +250,16 @@ def validate_config(cfg: dict) -> None:
     # errors right away and provide helpful errors messages.
 
     # Check for valid paths
+    if cfg["inputs"]["image_dir"] is None:
+        log.error("Input directory not set")
+        sys.exit()
+    idir = Path(cfg["inputs"]["image_dir"])
+    if not idir.is_dir():
+        raise FileNotFoundError(idir)
+
+    if cfg["outputs"]["dir"] is None:
+        log.error("Output directory not set")
+        sys.exit()
     odir = Path(cfg["outputs"]["dir"])
     if not odir.parent.is_dir():
         raise FileNotFoundError(odir.parent)

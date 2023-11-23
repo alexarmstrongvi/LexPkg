@@ -6,6 +6,7 @@ inputs:
 outputs:
     dir : null
     overwrite : False
+    timestamp_subdir : False
     scores_fname : 'scores.txt'
     debug_images: null
 
@@ -16,6 +17,12 @@ outputs:
         force: True
         filename : null #run.log
         filemode : w
+        # Add below to temporarily change properties of a specific logger
+        # dict_config:
+        #   disable_existing_loggers: False
+        #   loggers:
+        #     lexpkg.bin.process_data:
+        #       level : 'DEBUG'
 
 preprocessing:
     kwarg1 : val1

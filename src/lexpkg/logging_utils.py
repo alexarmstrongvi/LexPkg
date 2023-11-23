@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 import sys
 from traceback import TracebackException
-from typing import Optional
+from typing import Literal, Optional
 
 # 1st party
 from lexpkg import git
@@ -19,30 +19,24 @@ log = logging.getLogger(__name__)
 # Configuration
 
 # Format options
-# LOG_FMT_DEFAULT ='%(levelname)8s | %(message)s'
-# LOG_FMT_DEFAULT ='%(levelname)8s | %(module)s :: %(message)s'
-# LOG_FMT_DEFAULT ='%(levelname)8s | %(name)s :: %(message)s'
+# LOG_FMT_DEFAULT ="%(levelname)8s | %(message)s"
+# LOG_FMT_DEFAULT ="%(levelname)8s | %(module)s :: %(message)s"
+# LOG_FMT_DEFAULT ="%(levelname)8s | %(name)s :: %(message)s"
 LOG_FMT_DEFAULT = "%(levelname)8s | %(name_last)s :: %(message)s"
-# LOG_FMT_DEFAULT ='[%(asctime)s] %(levelname)8s | (%(filename)s) %(message)s'
+# LOG_FMT_DEFAULT ="[%(asctime)s] %(levelname)8s | (%(filename)s) %(message)s"
 # LOG_FMT_DEFAULT = "%(levelname)8s | (%(module)s:%(funcName)s():L%(lineno)d) %(message)s"
+
+LogLevelStr = Literal["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET"]
+LogLevel = int | LogLevelStr
 
 
 def configure_logging(
-    output_dir: Optional[Path] = None,
     file_config: Optional[Path] = None,
     dict_config: Optional[dict] = None,
     **basic_config,
 ) -> None:
     """Configure logging with any of the available logging config APIs."""
     # Update log files to be within output dir
-    if output_dir is not None:
-        if basic_config.get("filename"):
-            basic_config["filename"] = str(output_dir / basic_config["filename"])
-        if dict_config is not None:
-            for hcfg in dict_config.get("handlers", {}).values():
-                if hcfg.get("filename") is not None:
-                    hcfg["filename"] = str(output_dir / hcfg["filename"])
-
     if len(basic_config) > 0:
         logging.basicConfig(**basic_config)
 
@@ -50,11 +44,13 @@ def configure_logging(
         logging.config.fileConfig(file_config)
 
     if dict_config is not None:
-        logging.config.dictConfig(**dict_config)
+        if "version" not in dict_config:
+            dict_config["version"] = 1  # Only valid value according to docs
+        logging.config.dictConfig(dict_config)
 
     n_args = sum(map(bool, (file_config, dict_config, basic_config)))
     if n_args > 1:
-        log.warning(
+        log.info(
             "%d logging configurations provided. "
             "Order called: basicConfig -> fileConfig -> dictConfig",
             n_args,
@@ -63,6 +59,47 @@ def configure_logging(
     redirect_exceptions_to_logger()
     # Use at your own risk. See function docstring for warnings
     # capture_python_stdout()
+
+
+def require_root_console_handler(level: Optional[LogLevel] = None):
+    """Require the root logger have a console handler when using basicConfig
+
+    logging.basicConfig allows configuration of a console handler or file
+    handler but not both without manually providing them to the 'handlers'
+    argument. Call this after configuring logging with basicConfig to add a
+    console handler in when the basicConfig only added a FileHandler or
+    anything that is not a StreamHandler.
+    """
+    handlers = logging.root.handlers
+    if any(type(h) is logging.StreamHandler for h in handlers):
+        return
+    sh = logging.StreamHandler()
+    if level is not None:
+        sh.setLevel(level)
+    formatter = next((h.formatter for h in handlers if h.formatter), None)
+    if formatter is not None:
+        sh.setFormatter(formatter)
+    handlers.append(sh)
+
+
+def update_log_filenames(
+    output_dir: Path,
+    logging_cfg: dict,
+) -> None:
+    """Update log filenames to be relative to provided output directory"""
+    if logging_cfg.get("filename"):
+        logging_cfg["filename"] = str(output_dir / logging_cfg["filename"])
+
+    if logging_cfg.get("dict_config", {}).get("handlers"):
+        for hcfg in logging_cfg["dict_config"]["handlers"].values():
+            if hcfg.get("filename") is None:
+                # Not a FileHandler
+                continue
+            filename = Path(hcfg["filename"])
+            # Only update filenames or paths relative to output_dir
+            if len(filename.parts) > 1 and filename.parent.is_dir():
+                continue
+            hcfg["filename"] = str(output_dir / hcfg["filename"])
 
 
 ################################################################################
@@ -90,7 +127,7 @@ def level_name(level: int) -> str:
 def all_logger_names() -> list[str]:
     """Get the names of all loggers."""
     # pylint: disable=no-member
-    return ["root"] + sorted(logging.root.manager.loggerDict)
+    return ["root"] + sorted(logging.root.manager.loggerDict.keys())
 
 
 def logging_hierarchy_str():
@@ -122,20 +159,20 @@ def log_summary_str(logger):
     """Summarize logger."""
     log_lvl = logger.level
     eff_lvl = logger.getEffectiveLevel()
-    min_lvl = min(
-        lvl for lvl in range(logging.CRITICAL + 1) if logger.isEnabledFor(lvl)
+    min_lvl = next(
+        (lvl for lvl in range(logging.CRITICAL + 1) if logger.isEnabledFor(lvl)), None
     )
 
     s = f"Log Summary - {logger.name}"
     s += "\n - Levels   : "
     s += f"Effective = {level_name(eff_lvl)}; "
     s += f"Logger = {level_name(log_lvl)}; "
-    s += f"Enabled for >={level_name(min_lvl)}"
+    s += f"Enabled for >= {level_name(min_lvl) if min_lvl is not None else '?'}"
     s += f"\n - Flags    : Disabled = {logger.disabled}"
     s += f", Propagate = {logger.propagate}"
     s += f", Handlers = {logger.hasHandlers()}"
     # if logger.parent:
-    #    s += f'\n - Parent : {logger.parent.name}'
+    #    s += f"\n - Parent : {logger.parent.name}"
     for i, hndl in enumerate(logger.handlers, 1):
         s += f"\n - Handler {i}: {hndl}"
     for i, fltr in enumerate(logger.filters, 1):
@@ -218,16 +255,18 @@ def capture_python_stdout(logger: logging.Logger = logging.root):
     NOTES/WARNINGS
     - This will capture messages from all non-child loggers, usually duplicating
       a lot of formatting (e.g. level, module, etc.)
+    - This will capture output for the python debugger pdb
     - This will not capture messages sent directly to terminal stdout/stderr
       instead of via the python streams (see capture_unix_df).
     """
-    stdout_log = logging.getLogger(f"{logger.name}.stdout")
-    stderr_log = logging.getLogger(f"{logger.name}.stderr")
+    name_prefix = f"{logger.name}." if logger.name != "root" else ""
+    stdout_log = logging.getLogger(f"{name_prefix}stdout")
+    stderr_log = logging.getLogger(f"{name_prefix}stderr")
 
     # Overwrite python stdout and stderr streams
     # https://stackoverflow.com/questions/19425736/how-to-redirect-stdout-and-stderr-to-logger-in-python
-    sys.stdout = LoggerWriter(stdout_log.info)
-    sys.stderr = LoggerWriter(stderr_log.warning)
+    sys.stdout = LoggerWriter(stdout_log.critical)
+    sys.stderr = LoggerWriter(stderr_log.critical)
 
 
 class LoggerWriter(io.TextIOWrapper):
@@ -244,19 +283,19 @@ class LoggerWriter(io.TextIOWrapper):
         for line in message.rstrip().splitlines():
             self._writer(line.rstrip())
         # Prevent carriage return and empty newlines
-        # msg = message.lstrip('\r').lstrip('\n')
+        # msg = message.lstrip("\r").lstrip("\n")
 
         # self._msg = self._msg + msg
-        # while '\n' in self._msg:
-        #    pos = self._msg.find('\n')
-        #    self._writer(self._msg[:pos]+'\n')
+        # while "\n" in self._msg:
+        #    pos = self._msg.find("\n")
+        #    self._writer(self._msg[:pos]+"\n")
         #    self._msg = self._msg[pos+1:]
 
     def flush(self):
         """Flush messages to writer."""
-        # if self._msg != '':
+        # if self._msg != "":
         #     self._writer(self._msg)
-        #     self._msg = ''
+        #     self._msg = ""
 
 
 # import os
